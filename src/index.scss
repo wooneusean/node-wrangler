@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gridPrimaryColor: theme(colors.slate.200);
+  --gridSecondaryColor: theme(colors.slate.100);
+  --gridBackgroundColor: theme(colors.slate.50);
+}
+
+body,
+html {
+  background-color: var(--gridBackgroundColor);
+  background-image: linear-gradient(to right, var(--gridPrimaryColor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--gridPrimaryColor) 1px, transparent 1px),
+    linear-gradient(to right, var(--gridSecondaryColor) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--gridSecondaryColor) 1px, transparent 1px);
+
+  background-size: 40px 40px, 40px 40px, 10px 10px, 10px 10px;
+}

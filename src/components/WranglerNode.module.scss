@@ -1,0 +1,47 @@
+.node {
+  @apply text-sm bg-white rounded-lg shadow-md w-fit grid grid-cols-2 relative;
+
+  .nodeTitle {
+    @apply col-span-2 p-2 font-bold select-none cursor-move;
+  }
+
+  .nodeSeparator {
+    @apply col-span-2;
+  }
+
+  .nodeInputs,
+  .nodeOutputs {
+    @apply p-2 flex flex-col gap-2;
+
+    .nodeInput,
+    .nodeOutput {
+      @apply relative;
+
+      &::before {
+        @apply outline outline-1 outline-slate-100;
+
+        content: '';
+        height: 10px;
+        width: 10px;
+        top: calc(50% + 2px);
+        transform: translateY(-50%);
+      }
+    }
+
+    .nodeInput {
+      &::before {
+        @apply absolute bg-green-500 rounded-full;
+
+        left: -14px;
+      }
+    }
+
+    .nodeOutput {
+      &::before {
+        @apply absolute bg-blue-500 rounded-full;
+
+        right: -14px;
+      }
+    }
+  }
+}
