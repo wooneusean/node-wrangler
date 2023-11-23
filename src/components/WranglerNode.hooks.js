@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from 'react';
  * @param {HTMLElement} handle Element to act as the {@link WranglerNode} handle
  * @returns
  */
-export const useNodeControls = (handle) => {
+export const useNodeControls = ({ handle, initialPosition }) => {
   const isDragging = useRef(false);
 
   /** @type {[{x: number, y: number}, React.Dispatch<React.SetStateAction<{x: number, y: number}>>]} */
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [position, setPosition] = useState(initialPosition);
   const offsetRef = useRef({ offsetX: 0, offsetY: 0 });
 
   useEffect(() => {

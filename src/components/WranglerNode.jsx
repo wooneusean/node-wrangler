@@ -1,11 +1,17 @@
+import PropTypes from 'prop-types';
 import { useCallback, useState } from 'react';
 import { useNodeControls } from './WranglerNode.hooks.js';
 import styles from './WranglerNode.module.scss';
 
-const WranglerNode = () => {
+/**
+ *
+ * @param {{x: number, y: number}} initialPosition
+ * @returns WrangerNode component
+ */
+const WranglerNode = ({ initialPosition }) => {
   /** @type {[HTMLElement, React.Dispatch<React.SetStateAction<HTMLElement>>]} */
   const [handle, setHandle] = useState();
-  const [position, isClicking] = useNodeControls(handle);
+  const [position, isClicking] = useNodeControls({ handle, initialPosition });
 
   const handleRef = useCallback((node) => {
     if (node != null) {
@@ -30,6 +36,17 @@ const WranglerNode = () => {
       </div>
     </div>
   );
+};
+
+WranglerNode.propTypes = {
+  initialPosition: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number,
+  }),
+};
+
+WranglerNode.defaultProps = {
+  initialPosition: { x: 0, y: 0 },
 };
 
 export default WranglerNode;

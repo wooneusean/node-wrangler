@@ -6,6 +6,7 @@ function App() {
     <>
       <div className={styles.workBook}>
         <WranglerNode />
+        <WranglerNode initialPosition={{ x: 200, y: 200 }} />
       </div>
     </>
   );
