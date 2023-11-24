@@ -1,0 +1,35 @@
+.nodeInputs,
+.nodeOutputs {
+  @apply p-2 flex flex-col gap-2;
+
+  .nodeInput,
+  .nodeOutput {
+    @apply relative;
+
+    & .socket {
+      @apply outline outline-1 outline-slate-100;
+
+      content: '';
+      height: 10px;
+      width: 10px;
+      top: calc(50% + 2px);
+      transform: translateY(-50%);
+    }
+  }
+
+  .nodeInput {
+    & .socket {
+      @apply absolute bg-green-500 rounded-full;
+
+      left: -14px;
+    }
+  }
+
+  .nodeOutput {
+    & .socket {
+      @apply absolute bg-blue-500 rounded-full;
+
+      right: -14px;
+    }
+  }
+}

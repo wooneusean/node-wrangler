@@ -1,0 +1,11 @@
+.node {
+  @apply text-sm bg-white rounded-lg shadow-md w-fit grid grid-cols-2 absolute;
+
+  .nodeTitle {
+    @apply col-span-2 p-2 font-bold select-none cursor-move;
+  }
+
+  .nodeSeparator {
+    @apply col-span-2;
+  }
+}
