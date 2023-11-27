@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styles from '../WranglerOperationNode/WranglerOperationNode.module.scss';
-import { WranglerOperationNodeContext } from '../WranglerOperationNode';
+import { useContext } from 'react';
+import { WranglerOperationContext } from '../Wrangler';
 
-const WranglerNodeOutput = ({ label }) => {
+const WranglerNodeOutput = ({ label, value }) => {
   /** @type {[HTMLElement, React.Dispatch<React.SetStateAction<HTMLElement>>]} */
   const [socket, setSocket] = useState();
 
-  const { outputs, setOutputs } = useContext(WranglerOperationNodeContext);
+  const { id } = useContext(WranglerOperationContext);
 
   const socketRef = useCallback((node) => {
     if (node != null) {
@@ -18,32 +19,25 @@ const WranglerNodeOutput = ({ label }) => {
   useEffect(() => {
     if (socket != null) {
       const dragstartHandler = (e) => {
-        console.log(e);
         e.dataTransfer.effectAllowed = 'link';
 
-        e.dataTransfer.setData('application/node-context', 'test');
+        e.dataTransfer.setData('application/node-context', `${id}.${label}`);
       };
 
       socket.addEventListener('dragstart', dragstartHandler);
 
-      setOutputs((o) => {
-        o.set(label, null);
-        return o;
-      });
+      // Link output here
 
       return () => {
         socket.removeEventListener('dragstart', dragstartHandler);
 
-        setOutputs((o) => {
-          o.delete(label);
-          return o;
-        });
+        // Unlink output here
       };
     }
-  }, [socket, outputs]);
+  }, [socket]);
 
   return (
-    <div className={styles.nodeOutput}>
+    <div className={styles.nodeOutput} title={value}>
       {label}
       <div ref={socketRef} className={styles.socket} draggable></div>
     </div>
@@ -51,7 +45,8 @@ const WranglerNodeOutput = ({ label }) => {
 };
 
 WranglerNodeOutput.propTypes = {
-  label: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 };
 
 export default WranglerNodeOutput;

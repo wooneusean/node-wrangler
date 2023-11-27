@@ -1,67 +1,93 @@
 import PropTypes from 'prop-types';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { WranglerOperationNodeContext } from '../WranglerOperationNode';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { WranglerContext, WranglerOperationContext } from '../Wrangler';
 import styles from '../WranglerOperationNode/WranglerOperationNode.module.scss';
 
-const WranglerNodeInput = ({ label }) => {
+const WranglerNodeInput = ({ label, value }) => {
   /** @type {[HTMLElement, React.Dispatch<React.SetStateAction<HTMLElement>>]} */
-  const [socket, setSocket] = useState();
+  const [socketRef, setSocketRef] = useState();
 
-  const { inputs, setInputs } = useContext(WranglerOperationNodeContext);
+  const [state, dispatch] = useContext(WranglerContext);
+  const { id } = useContext(WranglerOperationContext);
 
-  const socketRef = useCallback((node) => {
+  const prevValue = useRef();
+  useEffect(() => {
+    const { inputs, operation } = state[id];
+    if (inputs == null) return;
+
+    const i = {};
+
+    for (const k of Object.keys(inputs)) {
+      try {
+        const [nodeId, nodeOutputLabel] = state[id].inputs[k].split('.');
+        i[k] = state[nodeId].outputs[nodeOutputLabel];
+      } catch (error) {
+        /* empty */
+      }
+    }
+
+    const output = operation(i);
+
+    if (JSON.stringify(prevValue.current) == JSON.stringify(output)) return;
+
+    prevValue.current = output;
+
+    dispatch({ type: 'UPDATE_OUTPUT', output, id });
+  }, [state, dispatch]);
+
+  const handleSocketRef = useCallback((node) => {
     if (node != null) {
-      setSocket(node);
+      setSocketRef(node);
     }
   }, []);
 
   useEffect(() => {
-    if (socket != null) {
+    if (socketRef != null) {
       const dragoverHandler = (e) => {
         e.preventDefault();
-        console.log(e);
         e.dataTransfer.dropEffect = 'link';
       };
 
-      socket.addEventListener('dragover', dragoverHandler);
+      socketRef.addEventListener('dragover', dragoverHandler);
 
       const dropHandler = (e) => {
         e.preventDefault();
-        console.log(e);
 
-        const data = e.dataTransfer.getData('application/node-context');
-        console.log(data);
-      };
+        const [outputNodeId, outputSocketLabel] = e.dataTransfer
+          .getData('application/node-context')
+          .split('.');
 
-      socket.addEventListener('drop', dropHandler);
-
-      setInputs((i) => {
-        i.set(label, null);
-        return i;
-      });
-
-      return () => {
-        socket.removeEventListener('drop', dropHandler);
-        socket.removeEventListener('dragover', dragoverHandler);
-
-        setInputs((i) => {
-          i.delete(label);
-          return i;
+        dispatch({
+          type: 'ADD_LISTENER',
+          listener: { node: id, socket: label },
+          emitter: { node: outputNodeId, socket: outputSocketLabel },
         });
       };
+
+      socketRef.addEventListener('drop', dropHandler);
+
+      // Link input here
+
+      return () => {
+        socketRef.removeEventListener('drop', dropHandler);
+        socketRef.removeEventListener('dragover', dragoverHandler);
+
+        // Unlink input here
+      };
     }
-  }, [socket, inputs]);
+  }, [socketRef, dispatch]);
 
   return (
-    <div className={styles.nodeInput}>
+    <div className={styles.nodeInput} title={value}>
       {label}
-      <div ref={socketRef} className={styles.socket}></div>
+      <div ref={handleSocketRef} className={styles.socket}></div>
     </div>
   );
 };
 
 WranglerNodeInput.propTypes = {
-  label: PropTypes.string,
+  label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
 };
 
 export default WranglerNodeInput;
